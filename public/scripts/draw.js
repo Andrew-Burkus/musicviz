@@ -1,6 +1,6 @@
 var canvas, sound, analyzer, filter, fft, filterFreq, filterRes,
     circles, max, drawBg, maxHue, maxSat, maxB, maxA, bkColor, lines,
-    drawStroke;
+    drawStroke, slider;
 
 function preload() {
     analyzer = new p5.Amplitude();
@@ -17,19 +17,20 @@ function setup() {
     maxA = 1;
     colorMode(HSB, maxHue, maxSat, maxB, maxA);
     //
-    circles = populateCircles(300);
+    circles = populateCircles(200);
     max = 250;
     //
     drawBg = true;
-    bkColor = 255;
+    bkColor = 195;
     drawStroke = false;
+    slider = new Slider(13, height - 50);
 }
 
 function draw() {
     if(drawBg) background(bkColor);
     if(drawStroke) {
         stroke(0);
-        strokeWeight(3.0);
+        strokeWeight(4.0);
     } else {
         noStroke();
     }
@@ -50,6 +51,19 @@ function draw() {
     filterRes = map(mouseY, 0, height, 5, 15);
 
     filter.set(filterFreq, filterRes);
+
+    if(sound && slider) {
+        if(mouseIsPressed) {
+            slider.x = mouseX;
+            sound.jump(map(slider.x, 0, width, 0, sound.duration()), 0);
+        }
+        var xPos = map(sound.currentTime() / sound.duration(), 0, 1, 50, width);
+        slider.x = xPos;
+    }
+    drawFooter(0, height - 50);
+    slider.draw();
+    fill(90);
+    ellipse(mouseX, mouseY, 35, 35);
 }
 
 function Circle(x, y, radius) {
@@ -67,7 +81,7 @@ Circle.prototype.draw = function() {
 };
 
 Circle.prototype.step = function(vol, freq) {
-    this.radius = constrain(vol * freq, 75, 150);
+    this.radius = constrain(vol * freq, 75, 175);
     this.color.hue = map(freq, 0, 255, 75, maxHue);
     this.color.sat = map(freq, 0, 255, 45, maxSat);
     this.color.b = map(freq, 0, 255, 55, maxB);
@@ -111,10 +125,6 @@ function playbackRate(sound, rate) {
     sound.rate(speed);
 }
 
-function mousePressed() {
-    drawBg = !drawBg;
-}
-
 function keyPressed() {
     if(keyCode === RETURN || keyCode === ENTER) {
         if(sound) {
@@ -130,18 +140,9 @@ function keyPressed() {
         }
     } else if(keyCode === CONTROL) {
         drawStroke = !drawStroke;
-    } else {}
-}
-
-function drawSplit() {
-    push();
-    strokeWeight(4.0);
-    var halfWidth = width / 2;
-    var halfHeight = height / 2;
-
-    line(halfWidth, 0, halfWidth, height);
-    line(0, halfHeight, width, halfHeight);
-    pop();
+    } else if(keyCode === ALT) {
+        drawBg = !drawBg;
+    }
 }
 
 function connectTo(sound, audio) {
