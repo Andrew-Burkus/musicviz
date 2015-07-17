@@ -73,7 +73,7 @@ Circle.prototype.step = function(vol, freq) {
     this.color.b = map(freq, 0, 255, 55, maxB);
     this.color.a = map(freq, 0, 255, 0.5, maxA);
 
-    this.y = map(freq, 0, 255, -100, height - 100);
+    this.y = map(freq, 0, 255, -100, height);
 };
 
 function populateCircles(num) {
