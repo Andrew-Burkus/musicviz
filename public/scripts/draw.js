@@ -1,6 +1,6 @@
 var canvas, sound, analyzer, filter, fft, filterFreq, filterRes,
     circles, max, drawBg, maxHue, maxSat, maxB, maxA, bkColor, lines,
-    drawStroke, slider;
+    drawStroke, slider, minRadius, maxRadius;
 
 function preload() {
     analyzer = new p5.Amplitude();
@@ -17,13 +17,15 @@ function setup() {
     maxA = 1;
     colorMode(HSB, maxHue, maxSat, maxB, maxA);
     //
-    circles = populateCircles(200);
+    circles = populateCircles(100);
     max = 250;
     //
     drawBg = true;
     bkColor = 195;
     drawStroke = false;
     slider = new Slider(13, height - 50);
+    minRadius = 75;
+    maxRadius = 150;
 }
 
 function draw() {
@@ -81,7 +83,7 @@ Circle.prototype.draw = function() {
 };
 
 Circle.prototype.step = function(vol, freq) {
-    this.radius = constrain(vol * freq, 75, 175);
+    this.radius = constrain(vol * freq * 3, minRadius, maxRadius);
     this.color.hue = map(freq, 0, 255, 75, maxHue);
     this.color.sat = map(freq, 0, 255, 45, maxSat);
     this.color.b = map(freq, 0, 255, 55, maxB);
@@ -145,6 +147,18 @@ function keyPressed() {
     }
 }
 
+function keyTyped() {
+    if(key === 'w') {
+        minRadius += 5;
+    } else if(key === 's') {
+        minRadius -= 5;
+    } else if(key === 'a'){
+        maxRadius -= 5;
+    } else if(key === 'd') {
+        maxRadius += 5;
+    }
+}
+
 function connectTo(sound, audio) {
     if(typeof audio === "array") {
         var i;
@@ -171,8 +185,8 @@ function handleFiles(files) {
         var data = e.target.result;
         window.sound = loadSound(data);
         sound.disconnect();
-        connectTo(sound, analyzer);
-        connectTo(sound, fft);
+        fft.setInput(sound);
+        analyzer.setInput(sound);
         sound.connect(filter);
     }
     reader.readAsDataURL(file);

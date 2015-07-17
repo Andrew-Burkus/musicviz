@@ -42,8 +42,13 @@
             function drop(e) {
                 e.stopPropagation();
                 e.preventDefault();
-                if(sound) sound.disconnect();
-                window.sound = null;
+                if(sound) {
+                    if(sound.isPaused() || sound.isPlaying()) {
+                        sound.stop();
+                        sound.disconnect();
+                        window.sound = null;
+                    }
+                }
 
                 var dt = e.dataTransfer;
                 var files = dt.files;
