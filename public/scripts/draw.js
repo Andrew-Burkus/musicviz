@@ -57,6 +57,7 @@ function draw() {
     if(sound && slider) {
         if(mouseIsPressed) {
             slider.x = mouseX;
+            sound.stop();
             sound.jump(map(slider.x, 0, width, 0, sound.duration()), 0);
         }
         var xPos = map(sound.currentTime() / sound.duration(), 0, 1, 50, width);
@@ -83,7 +84,7 @@ Circle.prototype.draw = function() {
 };
 
 Circle.prototype.step = function(vol, freq) {
-    this.radius = constrain(vol * freq * 3, minRadius, maxRadius);
+    this.radius = constrain(vol * freq, minRadius, maxRadius);
     this.color.hue = map(freq, 0, 255, 75, maxHue);
     this.color.sat = map(freq, 0, 255, 45, maxSat);
     this.color.b = map(freq, 0, 255, 55, maxB);
@@ -132,11 +133,10 @@ function keyPressed() {
         if(sound) {
             if(sound.isPlaying()) {
                 sound.pause();
-                drawBg = false;
             } else if(sound.isPaused()) {
-                drawBg = true;
                 sound.play();
             } else {
+                sound.stop();
                 sound.play();
             }
         }
@@ -149,24 +149,13 @@ function keyPressed() {
 
 function keyTyped() {
     if(key === 'w') {
-        minRadius += 5;
+        minRadius += 15;
     } else if(key === 's') {
-        minRadius -= 5;
+        minRadius -= 15;
     } else if(key === 'a'){
-        maxRadius -= 5;
+        maxRadius -= 15;
     } else if(key === 'd') {
-        maxRadius += 5;
-    }
-}
-
-function connectTo(sound, audio) {
-    if(typeof audio === "array") {
-        var i;
-        for(i = 0; i < audio.length; i++) {
-            audio[i].setInput(sound);
-        }
-    } else {
-        audio.setInput(sound);
+        maxRadius += 15;
     }
 }
 
@@ -185,9 +174,9 @@ function handleFiles(files) {
         var data = e.target.result;
         window.sound = loadSound(data);
         sound.disconnect();
-        fft.setInput(sound);
-        analyzer.setInput(sound);
         sound.connect(filter);
+        fft.setInput(filter);
+        analyzer.setInput(filter);
     }
     reader.readAsDataURL(file);
 }
