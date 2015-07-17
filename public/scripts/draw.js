@@ -17,7 +17,7 @@ function setup() {
     maxA = 1;
     colorMode(HSB, maxHue, maxSat, maxB, maxA);
     //
-    circles = populateCircles(200);
+    circles = populateCircles(300);
     max = 250;
     //
     drawBg = true;
